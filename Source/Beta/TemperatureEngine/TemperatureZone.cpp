@@ -3,6 +3,7 @@
 #include "DrawDebugHelpers.h"
 #include "Engine/Engine.h"
 #include "Math/UnrealMathUtility.h"
+#include "TemperatureHelper.h"
 
 
 ATemperatureZone::ATemperatureZone()
@@ -46,12 +47,14 @@ void ATemperatureZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 
 	// Check if the Radius property has changed
 	FName PropertyName = PropertyChangedEvent.GetPropertyName();
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(ATemperatureZone, Radius))
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(ATemperatureZone, Radius) ||
+		PropertyName == GET_MEMBER_NAME_CHECKED(ATemperatureZone, Temperature))
 	{
-		// Synchronize HeatSphere radius with Radius
+		// Synchronize HeatSphere radius with Radius and Temperature
 		if (HeatSphere)
 		{
 			HeatSphere->SetSphereRadius(Radius);
+			HeatSphere->ShapeColor = TemperatureHelper::GetTemperatureColor(Temperature);
 		}
 	}
 }

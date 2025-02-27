@@ -24,7 +24,10 @@ float ATemperatureManager::GetTemperatureAtLocation(FVector Location)
     //We do not take into account the height
     Location.Z = 0.0f;
 
-    float EnvironmentTemperature = BaseTemperature; // Начинаем с базовой температуры (минимальный приоритет)
+    float EnvironmentTemperature = BaseTemperature;
+    float TotalWeight = 0.0f;
+    float WeightedTemperatureSum = 0.0f;
+
     TArray<AActor*> TemperatureZones;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATemperatureZone::StaticClass(), TemperatureZones);
 
@@ -32,26 +35,42 @@ float ATemperatureManager::GetTemperatureAtLocation(FVector Location)
     for (AActor* Actor : TemperatureZones)
     {
         ATemperatureZone* Zone = Cast<ATemperatureZone>(Actor);
+        if (!Zone)
+        {
+            continue;
+        }
 
         float Distance = FVector::Dist(Location, Zone->GetActorLocation());
         if (Distance <= Zone->Radius)
         {
-            // If the zone is hot (temperature is higher than current), increase the priority
-            if (Zone->Temperature > EnvironmentTemperature)
-            {
-                EnvironmentTemperature = Zone->Temperature; // Hot zone overlaps base temp
-            }
-            // If the zone is cold (temperature is lower than the current one), it has the highest priority among the zones
-            else if (Zone->Temperature < EnvironmentTemperature)
-            {
-                EnvironmentTemperature = Zone->Temperature; // Cold zone blocks everything except fires
-            }
+            float Weight = (Zone->Radius - Distance) / Zone->Radius;
+
+            WeightedTemperatureSum += Zone->Temperature * Weight;
+            TotalWeight += Weight;
+
+            //// If the zone is hot (temperature is higher than current), increase the priority
+            //if (Zone->Temperature > EnvironmentTemperature)
+            //{
+            //    EnvironmentTemperature = Zone->Temperature; // Hot zone overlaps base temp
+            //}
+            //// If the zone is cold (temperature is lower than the current one), it has the highest priority among the zones
+            //else if (Zone->Temperature < EnvironmentTemperature)
+            //{
+            //    EnvironmentTemperature = Zone->Temperature; // Cold zone blocks everything except fires
+            //}
+        }
+        if (TotalWeight > 0.0f)
+        {
+            EnvironmentTemperature = WeightedTemperatureSum / TotalWeight;
         }
     }
 
     // Check for fire influence (highest priority)
     TArray<AActor*> Fireplaces;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFireplace::StaticClass(), Fireplaces);
+
+    float TotalFireWeight = 0.0f;
+    float WeightedFireTempSum = 0.0f;
 
     for (AActor* Actor : Fireplaces)
     {
@@ -61,15 +80,19 @@ float ATemperatureManager::GetTemperatureAtLocation(FVector Location)
             float DistanceToFire = FVector::Dist(Location, Fireplace->GetActorLocation());
             if (DistanceToFire <= Fireplace->HeatRadius)
             {
-                float tempNearCampfire = GetTemperatureNearFire(Fireplace, DistanceToFire, EnvironmentTemperature);
-                if (tempNearCampfire > EnvironmentTemperature) 
-                {
-                    EnvironmentTemperature = tempNearCampfire;
-                }
-                
-                break; // Temporary solution, assume that the first fire found has the highest priority
+                float Weight = (Fireplace->HeatRadius - DistanceToFire) / Fireplace->HeatRadius;
+                float TempNearCampfire = GetTemperatureNearFire(Fireplace, DistanceToFire, EnvironmentTemperature);
+
+                WeightedFireTempSum += TempNearCampfire * Weight;
+                TotalFireWeight += Weight;
             }
         }
+    }
+
+    if (TotalFireWeight > 0.0f)
+    {
+        float MixedFireTemperature = WeightedFireTempSum / TotalFireWeight;
+        EnvironmentTemperature = MixedFireTemperature;
     }
 
     return EnvironmentTemperature;
