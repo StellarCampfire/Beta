@@ -14,19 +14,18 @@ public:
 	// Sets default values for this actor's properties
 	AFireplace();
 
-	// Радиус действия тепла
+	// Radius of heat action
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fireplace")
 	float HeatRadius = 500.0f;
 
-	// Температура пламени
+	// Flame temperature
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fireplace")
 	float HeatAmount = 700.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fireplace")
-	float AlphaCf = 0.07875f; // Коэффициент затухания 
+	float AlphaCf = 0.07875f; // Damping coefficient
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
@@ -35,11 +34,11 @@ public:
 
 	virtual float GetFireplaceRadius();
 
-	// Компонент для визуального отображения костра
+	// Component for visual display of a fire
 	UPROPERTY(VisibleAnywhere, Category = "Fireplace")
 	UStaticMeshComponent* FireMesh;
 
-	// Компонент для зоны тепла
+	// Component for heat zone
 	UPROPERTY(VisibleAnywhere, Category = "Fireplace")
 	USphereComponent* HeatSphere;
 };

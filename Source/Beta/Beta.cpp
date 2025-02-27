@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "Beta.h"
 #include "Modules/ModuleManager.h"
 

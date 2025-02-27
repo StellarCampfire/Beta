@@ -1,6 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
-
-#include "BetaCharacter.h"
+﻿#include "BetaCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
@@ -52,7 +50,6 @@ void ABetaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Автоматически находим TemperatureManager на уровне
 	if (!TemperatureManager)
 	{
 		TArray<AActor*> FoundActors;
@@ -68,7 +65,7 @@ void ABetaCharacter::BeginPlay()
 		}
 	}
 
-	// Создаём и добавляем виджет на экран
+	// Create and add a widget to the screen
 	if (StatsHUDClass && IsLocallyControlled())
 	{
 		StatsHUDInstance = CreateWidget<UUserWidget>(GetWorld(), StatsHUDClass);
@@ -83,38 +80,36 @@ void ABetaCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	 Hunger -= 0.1f * DeltaSeconds; // Голод уменьшается со временем
-	 Thirst -= 0.15f * DeltaSeconds; // Жажда увеличивается быстрее
-	 Sanity -= 0.05f * DeltaSeconds; // Здравомыслие падает медленнее
+	// Player stats
+	Hunger -= 0.1f * DeltaSeconds;
+	Thirst -= 0.15f * DeltaSeconds;
+	Sanity -= 0.05f * DeltaSeconds;
 
-	 float EnvironmentalTemperature;
-	 // Получаем температуру среды
-	 if (TemperatureManager)
-	 {
-		 EnvironmentalTemperature = TemperatureManager->GetTemperatureAtLocation(GetActorLocation());
-		 // Плавно изменяем PerceivedTemperature к температуре среды
-		 PerceivedTemperature = FMath::FInterpTo(PerceivedTemperature, EnvironmentalTemperature, DeltaSeconds,0.02f);
+	float EnvironmentalTemperature;
+	// Get the environment temperature
+	if (TemperatureManager)
+	{
+		EnvironmentalTemperature = TemperatureManager->GetTemperatureAtLocation(GetActorLocation());
+		// Smoothly change Perceived Temperature to ambient temperature
+		PerceivedTemperature = FMath::FInterpTo(PerceivedTemperature, EnvironmentalTemperature, DeltaSeconds,0.02f);
 
-		 // Ограничиваем PerceivedTemperature так, чтобы она не выходила за пределы EnvironmentalTemperature
-		 if (EnvironmentalTemperature > PerceivedTemperature)
-		 {
-			 PerceivedTemperature = FMath::Min(PerceivedTemperature, EnvironmentalTemperature);
-		 }
-		 else
-		 {
-			 PerceivedTemperature = FMath::Max(PerceivedTemperature, EnvironmentalTemperature);
-		 }
-	 }
-	 else
-	 {
-		 // Если менеджер не задан, температура падает, но не ниже -50
-		 PerceivedTemperature -= 0.5f * DeltaSeconds;
-		 PerceivedTemperature = FMath::Max(PerceivedTemperature, -50.0f);
-	 }
+		// Limit the Perceived Temperature so that it does not go beyond the Environmental Temperature
+		if (EnvironmentalTemperature > PerceivedTemperature)
+		{
+			PerceivedTemperature = FMath::Min(PerceivedTemperature, EnvironmentalTemperature);
+		}
+		else
+		{
+			PerceivedTemperature = FMath::Max(PerceivedTemperature, EnvironmentalTemperature);
+		}
+	}
+	else
+	{
+		// If the temperature manager is not set, the temperature drops, but not below -50
+		PerceivedTemperature -= 0.5f * DeltaSeconds;
+		PerceivedTemperature = FMath::Max(PerceivedTemperature, -50.0f);
+	}
 
-	 //GEngine->AddOnScreenDebugMessage(1, 0.0f, FColor::Yellow, FString::Printf(TEXT("Hunger: %.1f"), Hunger));
-	 //GEngine->AddOnScreenDebugMessage(2, 0.0f, FColor::Yellow, FString::Printf(TEXT("Thirst: %.1f"), Thirst));
-	 //GEngine->AddOnScreenDebugMessage(3, 0.0f, FColor::Yellow, FString::Printf(TEXT("Sanity: %.1f"), Sanity));
-	 //GEngine->AddOnScreenDebugMessage(4, 0.0f, FColor::Yellow, FString::Printf(TEXT("PerceivedTemperature: %.1f"), PerceivedTemperature));
-	 GEngine->AddOnScreenDebugMessage(4, 0.0f, FColor::Yellow, FString::Printf(TEXT("EnviropmentTemperature: %.1f"), EnvironmentalTemperature));
+	// Debug message
+	GEngine->AddOnScreenDebugMessage(4, 0.0f, FColor::Yellow, FString::Printf(TEXT("EnviropmentTemperature: %.1f"), EnvironmentalTemperature));
 }

@@ -35,7 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Stats")
 	float GetPerceivedTemperature() const { return PerceivedTemperature; }
 
-	// Переменные для статистики
+	// Player stats variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats", meta = (ClampMin = "0.0", ClampMax = "100.0"))
 	float Hunger = 100.0f;
 
@@ -51,7 +51,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Temperature")
 	ATemperatureManager* TemperatureManager;
 
-	// Переменные для интерфейса
+	// Interface variables
 	UPROPERTY(EditAnywhere, Category = "UI")
 	TSubclassOf<class UUserWidget> StatsHUDClass; // Класс виджета
 

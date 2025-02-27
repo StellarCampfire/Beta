@@ -7,31 +7,28 @@ AFireplace::AFireplace()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-    // Создаём корневой компонент
+    // Create the root component
     FireMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FireMesh"));
     RootComponent = FireMesh;
 
-    // Создаём сферу для зоны тепла
+    // Create a sphere for the heat zone
     HeatSphere = CreateDefaultSubobject<USphereComponent>(TEXT("HeatSphere"));
     HeatSphere->SetupAttachment(RootComponent);
     HeatSphere->SetSphereRadius(HeatRadius);
 }
 
-// Called when the game starts or when spawned
 void AFireplace::BeginPlay()
 {
 	Super::BeginPlay();
-
-    // Устанавливаем радиус сферы из переменной (на случай изменения в редакторе)
     HeatSphere->SetSphereRadius(HeatRadius);
 }
 
-// Called every frame
 void AFireplace::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-    if (GEngine->IsEditor()) // Только в редакторе
+    // Display the heat sphere for ease of development
+    if (GEngine->IsEditor())
     {
         DrawDebugSphere(GetWorld(), GetActorLocation(), HeatRadius, 32, FColor::Orange, false, 0.0f, 0, 2.0f);
     }
@@ -40,7 +37,7 @@ void AFireplace::Tick(float DeltaTime)
 float AFireplace::GetFireplaceRadius() {
     if (!FireMesh || !FireMesh->GetStaticMesh())
     {
-        return 50.0f; // Меш не задан применяем дефолтное значение
+        return 50.0f;
     }
 
     FVector MeshExtent = FireMesh->Bounds.BoxExtent;

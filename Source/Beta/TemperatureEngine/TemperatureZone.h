@@ -27,8 +27,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+// The function is needed for visual display of the temperature zone during development
 #if WITH_EDITOR
-	// Вызывается при изменении свойств в редакторе
+	// Called when properties are changed in the editor
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif
 };

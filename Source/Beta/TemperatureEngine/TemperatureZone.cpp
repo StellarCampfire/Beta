@@ -44,11 +44,11 @@ void ATemperatureZone::PostEditChangeProperty(FPropertyChangedEvent& PropertyCha
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	// Проверяем, изменилось ли свойство Radius
+	// Check if the Radius property has changed
 	FName PropertyName = PropertyChangedEvent.GetPropertyName();
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(ATemperatureZone, Radius))
 	{
-		// Синхронизируем радиус HeatSphere с Radius
+		// Synchronize HeatSphere radius with Radius
 		if (HeatSphere)
 		{
 			HeatSphere->SetSphereRadius(Radius);

@@ -14,15 +14,11 @@ class BETA_API ATemperatureManager : public AActor
 public:
     ATemperatureManager();
 
-    // Базовая температура мира (холодная)
+    // World base temperature
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
     float BaseTemperature = -10.0f;
 
-    //// Список зон с особыми температурами (используем ATemperatureZone)
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temperature")
-    //TArray<ATemperatureZone*> TemperatureZones;
-
-    // Получение температуры в заданной точке
+    // Get temperature at a given point
     UFUNCTION(BlueprintCallable, Category = "Temperature")
     float GetTemperatureAtLocation(FVector Location);
 
